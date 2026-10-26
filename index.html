@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>7-Level Auto Placement — Free Demo</title>
+<style>
+:root{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#172033;background:#f4f7fb}
+*{box-sizing:border-box}body{margin:0}header{background:#172554;color:white;padding:22px 16px}
+header h1{margin:0 0 6px;font-size:1.35rem}header p{margin:0;color:#dbeafe;font-size:.95rem}
+main{max-width:900px;margin:0 auto;padding:16px}.notice{background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:12px;margin-bottom:14px;color:#7c2d12}
+.panel{background:white;border:1px solid #e2e8f0;border-radius:14px;padding:16px;margin:12px 0;box-shadow:0 3px 12px #0f172a0a}
+h2{font-size:1.08rem;margin:0 0 12px}.row{display:flex;gap:8px;flex-wrap:wrap}input,button{font:inherit;border-radius:9px;padding:11px;border:1px solid #cbd5e1}input{min-width:0;flex:1}button{background:#1d4ed8;color:white;border:0;font-weight:650;cursor:pointer}button.secondary{background:#e2e8f0;color:#172033}button.danger{background:#b91c1c}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:#eff6ff;padding:12px;border-radius:10px}.stat small{display:block;color:#475569}.stat strong{font-size:1.15rem}
+.levels{display:grid;gap:8px}.level{border:1px solid #e2e8f0;border-radius:10px;padding:10px}.level b{display:block;margin-bottom:5px}.chips{display:flex;flex-wrap:wrap;gap:6px}.chip{font-size:.82rem;padding:5px 8px;border-radius:999px;background:#e0e7ff;color:#1e3a8a}.chip.full{background:#dcfce7;color:#166534}.muted{color:#64748b;font-size:.88rem}.log{padding-left:20px}.log li{margin:6px 0}.footer{font-size:.85rem;color:#64748b;text-align:center;padding:18px}
+@media(max-width:480px){.stats{grid-template-columns:1fr}.row button{flex:1}}
+</style>
+</head>
+<body>
+<header><h1>7-Level Auto Placement</h1><p>Free local demo • Mobile-friendly • No real money or accounts</p></header>
+<main>
+<div class="notice"><b>Testing demo only:</b> यह वेबसाइट सिर्फ सदस्य-प्लेसमेंट का व्यवहार समझने के लिए है। इसमें कोई भुगतान, joining fee, असली कमाई या payout नहीं है। 180% केवल आपकी प्रस्तावित सीमा का placeholder है, कमाई का वादा नहीं।</div>
+<section class="panel">
+<h2>डेमो सदस्य जोड़ें</h2>
+<p class="muted">नाम डालकर सदस्य जोड़ें। सिस्टम अगले खाली स्थान पर अपने-आप रखेगा: Level 1 में 2 जगह, Level 2 में 4, फिर Level 3–7 में हर लेवल पर 8 जगह (सिर्फ टेस्टिंग के लिए)।</p>
+<div class="row"><input id="memberName" maxlength="30" placeholder="जैसे: Member 1"><button id="addBtn">सदस्य जोड़ें</button></div>
+<div class="row" style="margin-top:8px"><button class="secondary" id="sampleBtn">10 डेमो सदस्य जोड़ें</button><button class="danger" id="resetBtn">रीसेट</button></div>
+</section>
+<section class="panel">
+<h2>डेमो स्थिति</h2>
+<div class="stats">
+<div class="stat"><small>कुल टेस्ट सदस्य</small><strong id="total">0</strong></div>
+<div class="stat"><small>अगली जगह</small><strong id="next">Level 1</strong></div>
+<div class="stat"><small>प्रस्तावित सीमा</small><strong>180%</strong></div>
+</div>
+<p class="muted" id="status" aria-live="polite">अभी कोई सदस्य नहीं है।</p>
+</section>
+<section class="panel">
+<h2>7-Level प्लेसमेंट चार्ट</h2>
+<div class="levels" id="levels"></div>
+</section>
+<section class="panel">
+<h2>टेस्ट लॉग</h2>
+<ol class="log" id="log"><li>डेमो तैयार है।</li></ol>
+<p class="muted">इस संस्करण में auto-rotation और भुगतान बंद हैं, क्योंकि उनका सही नियम और कानूनी/उत्पाद-आधारित आधार पहले तय होना चाहिए।</p>
+</section>
+<div class="footer">Demo runs in your browser. Data is stored only in this browser using local storage; clearing browser data may erase it.</div>
+</main>
+<script>
+const caps=[2,4,8,8,8,8,8];
+let members=[];
+const $=id=>document.getElementById(id);
+function load(){try{members=JSON.parse(localStorage.getItem('demoMembers')||'[]')}catch{members=[]}render()}
+function save(){localStorage.setItem('demoMembers',JSON.stringify(members))}
+function getLevel(i){let n=i;for(let l=0;l<caps.length;l++){if(n<caps[l])return l+1;n-=caps[l]}return null}
+function add(name){
+ name=(name||'').trim(); if(!name) name='Member '+(members.length+1);
+ const level=getLevel(members.length);
+ if(!level){$('status').textContent='इस डेमो चार्ट की सभी जगह भर गई हैं। रीसेट करके दोबारा टेस्ट करें।';return}
+ members.push({name:name.slice(0,30),level,number:members.length+1});
+ save();render();$('memberName').value='';
+}
+function render(){
+ $('total').textContent=members.length;
+ const next=getLevel(members.length);$('next').textContent=next?'Level '+next:'Full';
+ $('status').textContent=members.length?('अंतिम टेस्ट सदस्य: '+members[members.length-1].name+' — Level '+members[members.length-1].level):'अभी कोई सदस्य नहीं है।';
+ const box=$('levels');box.innerHTML='';
+ caps.forEach((cap,i)=>{
+  const list=members.filter(m=>m.level===i+1);
+  const div=document.createElement('div');div.className='level';
+  const b=document.createElement('b');b.textContent='Level '+(i+1)+' · '+list.length+'/'+cap+' जगह';div.appendChild(b);
+  const chips=document.createElement('div');chips.className='chips';
+  if(!list.length){const s=document.createElement('span');s.className='muted';s.textContent='खाली';chips.appendChild(s)}
+  list.forEach(m=>{const s=document.createElement('span');s.className='chip'+(list.length===cap?' full':'');s.textContent=m.number+'. '+m.name;chips.appendChild(s)});
+  div.appendChild(chips);box.appendChild(div);
+ });
+ const log=$('log');log.innerHTML='';
+ [...members].slice(-8).reverse().forEach(m=>{const li=document.createElement('li');li.textContent=m.name+' → Level '+m.level+' (test placement)';log.appendChild(li)});
+ if(!members.length){const li=document.createElement('li');li.textContent='डेमो तैयार है।';log.appendChild(li)}
+}
+$('addBtn').addEventListener('click',()=>add($('memberName').value));
+$('memberName').addEventListener('keydown',e=>{if(e.key==='Enter')add($('memberName').value)});
+$('sampleBtn').addEventListener('click',()=>{for(let i=1;i<=10;i++)add('Demo '+(members.length+1))});
+$('resetBtn').addEventListener('click',()=>{if(confirm('सारे डेमो सदस्य हटाएँ?')){members=[];save();render()}});
+load();
+</script>
+</body>
+</html>
